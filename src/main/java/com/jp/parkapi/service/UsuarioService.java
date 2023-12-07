@@ -13,5 +13,16 @@ import java.util.List;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    @Transactional // Indicia que o Spring tomara conta da parte da transação, sendo o spring q vai abrir e fechar a transação no banco de dados
+    public Usuario salvar(Usuario usuairo) {
+        return usuarioRepository.save(usuairo);
+    }
 
+
+    @Transactional(readOnly = true)
+    public Usuario buscarPorId(Long id){
+        return usuarioRepository.findById(id).orElseThrow(
+                () -> new RuntimeException("Usuário não encontrado.")
+        );
+    }
 }
