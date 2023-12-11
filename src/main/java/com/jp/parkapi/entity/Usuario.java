@@ -28,7 +28,7 @@ public class Usuario implements Serializable {
     @Enumerated(EnumType.STRING) //Transforma a constant em uma string para salvar no banco de dados
     // EnumType.ORDINAL salva no banco pela posição declara, nesse exemplo
     @Column(name = "role", nullable = false, length = 25)
-    private Role role;
+    private Role role = Role.ROLE_CLIENTE;
 
     @Column(name = "data_criacao")
     private LocalDateTime dataCriacao;
