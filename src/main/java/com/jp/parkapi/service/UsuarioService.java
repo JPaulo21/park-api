@@ -1,8 +1,15 @@
 package com.jp.parkapi.service;
 
+import com.jp.parkapi.entity.Role;
 import com.jp.parkapi.entity.Usuario;
+import com.jp.parkapi.exception.EntityNotFoundException;
+import com.jp.parkapi.exception.PasswordInvalidException;
+import com.jp.parkapi.exception.UsernameUniqueViolationException;
 import com.jp.parkapi.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,23 +20,37 @@ import java.util.List;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
     @Transactional // Indicia que o Spring tomara conta da parte da transação, sendo o spring q vai abrir e fechar a transação no banco de dados
-    public Usuario salvar(Usuario usuairo) {
-        return usuarioRepository.save(usuairo);
+    public Usuario salvar(Usuario usuario) {
+        try {
+            usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+            return usuarioRepository.save(usuario);
+        } catch (DataIntegrityViolationException ex){
+            throw new UsernameUniqueViolationException(String.format("Username %s já cadastrado!", usuario.getUsername()));
+        }
     }
 
 
     @Transactional(readOnly = true)
     public Usuario buscarPorId(Long id){
         return usuarioRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Usuário não encontrado.")
+                () -> new EntityNotFoundException(String.format("Usuário id=%s não encontrado.", id))
         );
     }
 
     @Transactional
-    public Usuario editarSenha(Long id, String password) {
+    public Usuario editarSenha(Long id, String senhaAtual, String novaSenha, String confirmaSenha) {
+        if(!novaSenha.equals(confirmaSenha)){ // Senha e Confirmação de Senha são diferentes
+            throw new PasswordInvalidException("Nova senha não confere com a confirmação de senha.");
+        }
+
         Usuario user = buscarPorId(id);
-        user.setPassword(password);
+        if(!passwordEncoder.matches(senhaAtual, user.getPassword())){ // Válida senha atual para realizar a troca
+            throw new PasswordInvalidException("Senha atual inválida.");
+        }
+
+        user.setPassword(novaSenha);
         return user;
     }
 
@@ -38,4 +59,15 @@ public class UsuarioService {
         return usuarioRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
+    public Usuario buscarPorUsername(String username) {
+        return usuarioRepository.findByUsername(username).orElseThrow(
+                () -> new UsernameNotFoundException(String.format("Usuário com '%s' não encontrado.", username))
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public Role buscarRolePorUsername(String username) {
+        return usuarioRepository.findRoleByUsername(username);
+    }
 }
