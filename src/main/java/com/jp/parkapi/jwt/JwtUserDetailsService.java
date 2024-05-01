@@ -11,8 +11,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class JwtUserDetailsService implements UserDetailsService {//Interface para localizar o usuário no banco de dados
 
     private final UsuarioService usuarioService;
