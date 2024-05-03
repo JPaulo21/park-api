@@ -50,7 +50,7 @@ public class UsuarioService {
             throw new PasswordInvalidException("Senha atual inválida.");
         }
 
-        user.setPassword(novaSenha);
+        user.setPassword(passwordEncoder.encode(novaSenha));
         return user;
     }
 
