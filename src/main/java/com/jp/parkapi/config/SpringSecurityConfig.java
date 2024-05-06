@@ -1,5 +1,6 @@
 package com.jp.parkapi.config;
 
+import com.jp.parkapi.jwt.JwtAuthenticationEntryPoint;
 import com.jp.parkapi.jwt.JwtAuthorizationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,6 +36,8 @@ public class SpringSecurityConfig {
                 ).addFilterBefore(
                         jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class
                 )
+                .exceptionHandling(ex -> ex //Personalizar resposta de não autorização do Spring Security
+                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint()))
                 .build();
     }
 
