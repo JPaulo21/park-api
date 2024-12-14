@@ -3,7 +3,13 @@ package com.jp.parkapi.web.controller;
 import com.jp.parkapi.jwt.JwtToken;
 import com.jp.parkapi.jwt.JwtUserDetailsService;
 import com.jp.parkapi.web.dto.UsuarioLoginDto;
+import com.jp.parkapi.web.dto.UsuarioResponseDto;
 import com.jp.parkapi.web.exception.ErrorMessage;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
+@Tag(name = "Autenticação", description = "Recurso para proceder com autenticação com a API")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1")
@@ -27,6 +34,15 @@ public class AutenticacaoController {
     private final JwtUserDetailsService detailsService;
     private final AuthenticationManager authenticationManager;
 
+    @Operation(summary = "Autenticar na API", description = "Recurso de autenticação a API",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Autenticação realizda com sucesso e retorno de um bearer token",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsuarioResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Credenciais inválidas",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
+            @ApiResponse(responseCode = "422", description = "Campo(s) Inválido(s)",
+                content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class))),
+        })
     @PostMapping("/auth")
     public ResponseEntity<?> autenticar(@Valid @RequestBody UsuarioLoginDto loginDto, HttpServletRequest request){
         log.info("Processo de autenticação pelo Login {}", loginDto.getUsername());
@@ -42,7 +58,7 @@ public class AutenticacaoController {
         }
         return ResponseEntity
                 .badRequest()
-                .body(new ErrorMessage(request, HttpStatus.BAD_REQUEST, "Credencias inválidas"));
+                .body(new ErrorMessage(request, HttpStatus.BAD_REQUEST, "Credenciais inválidas"));
     }
 
 }
