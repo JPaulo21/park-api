@@ -1,5 +1,6 @@
 package com.jp.parkapi.web.exception;
 
+import com.jp.parkapi.exception.CpfUniqueViolationException;
 import com.jp.parkapi.exception.EntityNotFoundException;
 import com.jp.parkapi.exception.PasswordInvalidException;
 import com.jp.parkapi.exception.UsernameUniqueViolationException;
@@ -47,7 +48,7 @@ public class ApiExceptionHandler {
                 .body(new ErrorMessage(request, HttpStatus.UNPROCESSABLE_ENTITY, "Campo(s) Inválido(s)", result));
     }
 
-    @ExceptionHandler(UsernameUniqueViolationException.class)
+    @ExceptionHandler({UsernameUniqueViolationException.class, CpfUniqueViolationException.class})
     public ResponseEntity<ErrorMessage> UsernameUniqueViolationException (RuntimeException ex, HttpServletRequest request){
         log.error("Api Error - " + ex.getMessage());
         return ResponseEntity
