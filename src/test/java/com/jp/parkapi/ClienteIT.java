@@ -1,6 +1,5 @@
 package com.jp.parkapi;
 
-import com.jp.parkapi.entity.Cliente;
 import com.jp.parkapi.web.dto.ClienteCreateDto;
 import com.jp.parkapi.web.dto.ClienteResponseDto;
 import com.jp.parkapi.web.exception.ErrorMessage;
@@ -132,5 +131,35 @@ public class ClienteIT {
 
         assertThat(responseBody).isNotNull();
         assertThat(responseBody.getId()).isEqualTo(101);
+    }
+
+    @Test
+    public void buscarCliente_ComIdInexistentePeloAdmin_RetornarErrorMessageComStatus404(){
+        ErrorMessage responseBody = webTestClient
+                .get()
+                .uri("/api/v1/clientes/0")
+                .headers(JwtAuthentication.getHeaderAuthorization(webTestClient, "ygor@email.com", "123456"))
+                .exchange()
+                .expectStatus().isNotFound()
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        assertThat(responseBody).isNotNull();
+        assertThat(responseBody.getStatus()).isEqualTo(404);
+    }
+
+    @Test
+    public void buscarCliente_ComIdExistentePeloCliente_RetornarErrorMessageComStatus403(){
+        ErrorMessage responseBody = webTestClient
+                .get()
+                .uri("/api/v1/clientes/104")
+                .headers(JwtAuthentication.getHeaderAuthorization(webTestClient, "maria@email.com", "124578"))
+                .exchange()
+                .expectStatus().isForbidden()
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        assertThat(responseBody).isNotNull();
+        assertThat(responseBody.getStatus()).isEqualTo(403);
     }
 }
