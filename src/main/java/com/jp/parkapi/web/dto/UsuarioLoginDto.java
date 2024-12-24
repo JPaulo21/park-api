@@ -18,6 +18,6 @@ public class UsuarioLoginDto {
     private String username;
 
     @NotBlank @Size(min = 6, max = 6)
-    @Schema(example = "123456")
+    @Schema(description = "Senha do usuário", example = "123456")
     private String password;
 }
