@@ -209,4 +209,36 @@ public class ClienteIT {
         assertThat(responseBody).isNotNull();
         assertThat(responseBody.getStatus()).isEqualTo(403);
     }
+
+    @Test
+    public void buscarCliente_ComDadosDoTokenDeCliente_RetornarClienteComStatus200(){
+        ClienteResponseDto responseBody = webTestClient
+                .get()
+                .uri("/api/v1/clientes/detalhes")
+                .headers(JwtAuthentication.getHeaderAuthorization(webTestClient, "tupac@email.com", "124578"))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(ClienteResponseDto.class)
+                .returnResult().getResponseBody();
+
+        assertThat(responseBody).isNotNull();
+        assertThat(responseBody.getId()).isEqualTo(104);
+        assertThat(responseBody.getCpf()).isEqualTo("90287456021");
+        assertThat(responseBody.getNome()).isEqualTo("Tupac Shakur");
+    }
+
+    @Test
+    public void buscarCliente_ComDadosDoTokenDeAdmin_RetornarErrorMessageComStatus403(){
+        ErrorMessage responseBody = webTestClient
+                .get()
+                .uri("/api/v1/clientes/detalhes")
+                .headers(JwtAuthentication.getHeaderAuthorization(webTestClient, "dilma@email.com", "124578"))
+                .exchange()
+                .expectStatus().isForbidden()
+                .expectBody(ErrorMessage.class)
+                .returnResult().getResponseBody();
+
+        assertThat(responseBody).isNotNull();
+        assertThat(responseBody.getStatus()).isEqualTo(403);
+    }
 }

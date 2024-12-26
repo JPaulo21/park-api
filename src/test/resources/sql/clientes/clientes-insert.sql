@@ -17,3 +17,4 @@ insert into USUARIOS (id, username, password, role) values (104, 'tupac@email.co
 
 insert into CLIENTES (id, nome, cpf, id_usuario) values (101, 'Tulio', '39988750005', 101);
 insert into CLIENTES (id, nome, cpf, id_usuario) values (103, 'Maria', '87150818005', 103);
+insert into CLIENTES (id, nome, cpf, id_usuario) values (104, 'Tupac Shakur', '90287456021', 104);
