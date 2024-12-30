@@ -1,10 +1,7 @@
 package com.jp.parkapi.jwt;
 
-import com.jp.parkapi.entity.Role;
 import com.jp.parkapi.entity.Usuario;
-import com.jp.parkapi.repository.UsuarioRepository;
 import com.jp.parkapi.service.UsuarioService;
-import com.jp.parkapi.web.controller.UsuarioController;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,7 +21,7 @@ public class JwtUserDetailsService implements UserDetailsService {//Interface pa
     }
 
     public JwtToken getTokenAuthenticated(String username){
-        Role role = usuarioService.buscarRolePorUsername(username);
+        Usuario.Role role = usuarioService.buscarRolePorUsername(username);
         return JwtUtils.createToken(username, role.name().substring("ROLE_".length()));
     }
 

@@ -1,6 +1,5 @@
 package com.jp.parkapi.service;
 
-import com.jp.parkapi.entity.Role;
 import com.jp.parkapi.entity.Usuario;
 import com.jp.parkapi.exception.EntityNotFoundException;
 import com.jp.parkapi.exception.PasswordInvalidException;
@@ -67,7 +66,7 @@ public class UsuarioService {
     }
 
     @Transactional(readOnly = true)
-    public Role buscarRolePorUsername(String username) {
+    public Usuario.Role buscarRolePorUsername(String username) {
         return usuarioRepository.findRoleByUsername(username);
     }
 }

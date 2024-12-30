@@ -70,4 +70,8 @@ public class Usuario implements Serializable {
     public String toString() {
         return "Usuario{" + "id=" + id +'}';
     }
+
+    public enum Role {
+        ROLE_ADMIN, ROLE_CLIENTE
+    }
 }
