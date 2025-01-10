@@ -1,6 +1,7 @@
 package com.jp.parkapi.web.controller;
 
 import com.jp.parkapi.entity.ClienteVaga;
+import com.jp.parkapi.service.ClienteVagaService;
 import com.jp.parkapi.service.EstacionamentoService;
 import com.jp.parkapi.web.dto.EstacionamentoCreateDto;
 import com.jp.parkapi.web.dto.EstacionamentoResponseDto;
@@ -18,10 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -32,6 +30,7 @@ import java.net.URI;
 @RequestMapping("api/v1/estacionamentos")
 public class EstacionamentoController {
     private final EstacionamentoService estacionamentoService;
+    private final ClienteVagaService clienteVagaService;
 
     @Operation(summary = "Operação de check-in", description = "Recurso para dar entrada de um veículo no estacionamento. " +
             "Requisição exige uso de bearer token. Acesso restrito a Role='ADMIN'",
@@ -69,5 +68,13 @@ public class EstacionamentoController {
                 .buildAndExpand(clienteVaga.getRecibo())
                 .toUri();
         return ResponseEntity.created(location).body(responseDto);
+    }
+
+    @GetMapping("/check-in/{recibo}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
+    public ResponseEntity<EstacionamentoResponseDto> getByRecibo(@PathVariable String recibo){
+        ClienteVaga clienteVaga = clienteVagaService.buscarPorRecibo(recibo);
+        EstacionamentoResponseDto dto = ClienteVagaMapper.toDto(clienteVaga);
+        return ResponseEntity.ok(dto);
     }
 }
