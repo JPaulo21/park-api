@@ -109,7 +109,12 @@ public class EstacionamentoController {
                             content = @Content(mediaType = "application/json;charset=UTF-8",
                                     schema = @Schema(implementation = EstacionamentoResponseDto.class))
                     ),
-                    @ApiResponse(responseCode = "401", description = "Número do recibo não encontrado.",
+                    @ApiResponse(responseCode = "401", description = "Número do recibo inexistente ou " +
+                            "o veículo já passou pelo check-out.",
+                            content = @Content(mediaType = "application/json;charset=UTF-8",
+                                    schema = @Schema(implementation = ErrorMessage.class))
+                    ),
+                    @ApiResponse(responseCode = "403", description = "Recurso não permitido ao perfil de CLIENTE",
                             content = @Content(mediaType = "application/json;charset=UTF-8",
                                     schema = @Schema(implementation = ErrorMessage.class))
                     )
