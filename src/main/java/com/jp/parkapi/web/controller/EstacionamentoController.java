@@ -8,6 +8,7 @@ import com.jp.parkapi.web.dto.EstacionamentoResponseDto;
 import com.jp.parkapi.web.dto.mapper.ClienteVagaMapper;
 import com.jp.parkapi.web.exception.ErrorMessage;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH;
 
 @Tag(name = "Estacionamentos", description = "Operações de registro de entrada e saída de um veículo de estacionamento.")
 @RequiredArgsConstructor
@@ -70,10 +73,52 @@ public class EstacionamentoController {
         return ResponseEntity.created(location).body(responseDto);
     }
 
+    @Operation(summary = "Localizar um veículo estacionado", description = "Recurso para retornar um veículo estacionado " +
+            "pelo n° do recibo. Requisição exige uso de bearer token. ",
+            security = @SecurityRequirement(name = "security"),
+            parameters = {
+                    @Parameter(in = PATH, name = "recibo", description = "Número do recibo gerado pelo check-in")
+            },
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Recurso localizado com sucesso",
+                            content = @Content(mediaType = "application/json;charset=UTF-8",
+                                    schema = @Schema(implementation = EstacionamentoResponseDto.class))
+                    ),
+                    @ApiResponse(responseCode = "401", description = "Número do recibo não encontrado.",
+                            content = @Content(mediaType = "application/json;charset=UTF-8",
+                                    schema = @Schema(implementation = ErrorMessage.class))
+                    )
+            }
+    )
     @GetMapping("/check-in/{recibo}")
     @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE')")
     public ResponseEntity<EstacionamentoResponseDto> getByRecibo(@PathVariable String recibo){
         ClienteVaga clienteVaga = clienteVagaService.buscarPorRecibo(recibo);
+        EstacionamentoResponseDto dto = ClienteVagaMapper.toDto(clienteVaga);
+        return ResponseEntity.ok(dto);
+    }
+
+    @Operation(summary = "Operação de check-out", description = "Recurso para dar saída de um veículo no estacionamento. " +
+            "Requisição exige uso de bearer token. Acesso restrito a Role='ADMIN'",
+            security = @SecurityRequirement(name = "security"),
+            parameters = {
+                    @Parameter(in = PATH, name = "recibo", description = "Número do recibo gerado pelo check-in")
+            },
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Recurso atualizado com sucesso",
+                            content = @Content(mediaType = "application/json;charset=UTF-8",
+                                    schema = @Schema(implementation = EstacionamentoResponseDto.class))
+                    ),
+                    @ApiResponse(responseCode = "401", description = "Número do recibo não encontrado.",
+                            content = @Content(mediaType = "application/json;charset=UTF-8",
+                                    schema = @Schema(implementation = ErrorMessage.class))
+                    )
+            }
+    )
+    @PutMapping("/check-out/{recibo}")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<EstacionamentoResponseDto> checkout(@PathVariable String recibo){
+        ClienteVaga clienteVaga = estacionamentoService.checkout(recibo);
         EstacionamentoResponseDto dto = ClienteVagaMapper.toDto(clienteVaga);
         return ResponseEntity.ok(dto);
     }
