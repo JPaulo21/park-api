@@ -38,3 +38,5 @@ insert into clientes_tem_vagas (numero_recibo, placa, marca, modelo, cor, data_e
     values ('20230313-101400', 'SIE-1020', 'FIAT', 'SIENA', 'BRANCO', '2023-03-14 10:15:00', 103, 40);
 insert into clientes_tem_vagas (numero_recibo, placa, marca, modelo, cor, data_entrada, id_cliente, id_vaga)
     values ('20230315-101500', 'FIT-1020', 'FIAT', 'PALIO', 'VERDE', '2023-03-14 10:15:00', 104, 30);
+insert into clientes_tem_vagas (numero_recibo, placa, marca, modelo, cor, data_entrada, id_cliente, id_vaga)
+    values ('20240107-101600', 'FIT-1020', 'FIAT', 'PALIO', 'VERDE', '2024-01-07 10:16:00', 104, 60);
