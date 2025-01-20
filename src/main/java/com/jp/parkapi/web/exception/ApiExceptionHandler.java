@@ -2,7 +2,9 @@ package com.jp.parkapi.web.exception;
 
 import com.jp.parkapi.exception.*;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,8 +16,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.security.access.AccessDeniedException;
 
 @Slf4j
+@RequiredArgsConstructor
 @RestControllerAdvice
 public class ApiExceptionHandler {
+
+    private final MessageSource messageSource;
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorMessage> accessDeniedException(AccessDeniedException ex, HttpServletRequest request){
@@ -35,6 +40,15 @@ public class ApiExceptionHandler {
                 .body(new ErrorMessage(request, HttpStatus.NOT_FOUND, ex.getMessage()));
     }
 
+    @ExceptionHandler(ReciboCheckInNotFoundException.class)
+    public ResponseEntity<ErrorMessage> reciboCheckInNotFoundException(RuntimeException ex,HttpServletRequest request){
+        log.error("Api Error - " + ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new ErrorMessage(request, HttpStatus.NOT_FOUND, ex.getMessage()));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorMessage> methodArgumentNotValidException(MethodArgumentNotValidException ex,
                                                                         HttpServletRequest request,
@@ -43,7 +57,9 @@ public class ApiExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.UNPROCESSABLE_ENTITY)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(new ErrorMessage(request, HttpStatus.UNPROCESSABLE_ENTITY, "Campo(s) Inválido(s)", result));
+                .body(new ErrorMessage(request, HttpStatus.UNPROCESSABLE_ENTITY,
+                                        messageSource.getMessage("message.invalid.field", null, request.getLocale()),
+                                        result, messageSource));
     }
 
     @ExceptionHandler({UsernameUniqueViolationException.class, CpfUniqueViolationException.class, DataIntegrityViolationException.class, CodigoUniqueViolationException.class})
@@ -62,6 +78,15 @@ public class ApiExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(new ErrorMessage(request, HttpStatus.BAD_REQUEST, ex.getMessage()));
+    }
+
+    @ExceptionHandler(VagaDisponivelException.class)
+    public ResponseEntity<ErrorMessage> vagaDisponivelException(RuntimeException ex,HttpServletRequest request){
+        log.error("Api Error - " + ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new ErrorMessage(request, HttpStatus.NOT_FOUND, ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
